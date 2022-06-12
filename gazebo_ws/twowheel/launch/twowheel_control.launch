@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find twowheel)/config/twowheel_control.yaml" command="load"/>
+
+  <!-- load the controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+	output="screen" ns="/twowheel" args="joint_state_controller
+					  lwheel_front_joint_velocity_controller
+					  rwheel_front_joint_velocity_controller
+					  lwheel_back_joint_velocity_controller
+					  rwheel_back_joint_velocity_controller"/>
+
+</launch>

@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/xian/Downloads/twowheel_gz/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/xian/Downloads/twowheel_gz/src/gazebo_ws/fira_gz/include/**",
+        "/home/xian/Downloads/twowheel_gz/src/imageprocess/include/**",
+        "/home/xian/Downloads/twowheel_gz/src/gazebo_ws/simmotionpackage/include/**",
+        "/home/xian/Downloads/twowheel_gz/src/strategy/include/**",
+        "/home/xian/Downloads/twowheel_gz/src/tku_libs/include/**",
+        "/home/xian/Downloads/twowheel_gz/src/gazebo_ws/tool_gz/include/**",
+        "/home/xian/Downloads/twowheel_gz/src/usb_cam/include/**",
+        "/home/xian/Downloads/twowheel_gz/src/walkinggait/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

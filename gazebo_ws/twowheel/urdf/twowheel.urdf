@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="twowheel">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.00189704808770979 -2.77555756156289E-17 0.000243241596412187"
+        rpy="0 0 0" />
+      <mass
+        value="029241.3148419216" />
+      <inertia
+        ixx="0000214.467025690103"
+        ixy="3893746.50523059E-20"
+        ixz="9200795.97527627E-06"
+        iyy="0000330.913240446304"
+        iyz="-3591856.93194801E-21"
+        izz="0000497.502081292989" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="lwheel_front_link">
+    <inertial>
+      <origin
+        xyz="2.77555756156289E-17 0 3.46944695195361E-18"
+        rpy="0 0 0" />
+      <mass
+        value="001256.63706143592" />
+      <inertia
+        ixx="1204277.18387609E-06"
+        ixy="9926167.35063632E-24"
+        ixz="6900064.94304649E-23"
+        iyy="1570796.3267949E-06"
+        iyz="-7940933.88050907E-23"
+        izz="1204277.18387609E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/lwheel_front_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/lwheel_front_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lwheel_front_joint"
+    type="continuous">
+    <origin
+      xyz="0.043 0.0525 -0.008"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="lwheel_front_link" />
+    <axis
+      xyz="0 1 0" />
+    <dynamics
+      damping="0.7" />
+  </joint>
+  <link
+    name="rwheel_front_link">
+    <inertial>
+      <origin
+        xyz="0 1.38777878078145E-17 0"
+        rpy="0 0 0" />
+      <mass
+        value="001256.63706143592" />
+      <inertia
+        ixx="1204277.18387609E-06"
+        ixy="2600255.43384173E-23"
+        ixz="6486043.81353428E-23"
+        iyy="1570796.3267949E-06"
+        iyz="1543315.65336478E-23"
+        izz="1204277.18387609E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/rwheel_front_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/rwheel_front_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rwheel_front_joint"
+    type="continuous">
+    <origin
+      xyz="0.043 -0.0525 -0.008"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rwheel_front_link" />
+    <axis
+      xyz="0 1 0" />
+    <dynamics
+      damping="0.7" />
+  </joint>
+  <link
+    name="lwheel_back_link">
+    <inertial>
+      <origin
+        xyz="6.93889390390723E-18 0 -1.73472347597681E-18"
+        rpy="0 0 0" />
+      <mass
+        value="001256.63706143592" />
+      <inertia
+        ixx="1204277.18387609E-06"
+        ixy="-3529303.94689291E-23"
+        ixz="1499759.78266181E-40"
+        iyy="1570796.3267949E-06"
+        iyz="-4553270.7001614E-39"
+        izz="1204277.18387609E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/lwheel_back_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/lwheel_back_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lwheel_back_joint"
+    type="continuous">
+    <origin
+      xyz="-0.043 0.0525 -0.008"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="lwheel_back_link" />
+    <axis
+      xyz="0 1 0" />
+    <dynamics
+      damping="0.7" />
+  </joint>
+  <link
+    name="rwheel_back_link">
+    <inertial>
+      <origin
+        xyz="-1.38777878078145E-17 1.38777878078145E-17 0"
+        rpy="0 0 0" />
+      <mass
+        value="001256.63706143592" />
+      <inertia
+        ixx="1204277.18387609E-06"
+        ixy="1767333.78549152E-39"
+        ixz="-1499759.78266188E-40"
+        iyy="1570796.3267949E-06"
+        iyz="4553270.7001614E-39"
+        izz="1204277.18387609E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/rwheel_back_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/rwheel_back_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rwheel_back_joint"
+    type="continuous">
+    <origin
+      xyz="-0.043 -0.0525 -0.008"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rwheel_back_link" />
+    <axis
+      xyz="0 1 0" />
+    <dynamics
+      damping="0.7" />
+  </joint>
+  <link
+    name="camera_Link">
+    <inertial>
+      <origin
+        xyz="0.000737693445204357 3.24407345431155E-09 -0.00116644766754696"
+        rpy="0 0 0" />
+      <mass
+        value="000962.102997648522" />
+      <inertia
+        ixx="6922246.68983282E-07"
+        ixy="-3504703.43196234E-13"
+        ixz="-5438839.57292803E-09"
+        iyy="8334672.43629266E-07"
+        iyz="-1150783.32662436E-14"
+        izz="1202980.56447629E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/camera_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://twowheel/meshes/camera_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="camera_joint"
+    type="fixed">
+    <origin
+      xyz="0.0349999999999999 0 0.02"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="camera_Link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+  <gazebo
+     reference="base_link">
+    <mu1>100</mu1>
+    <mu2>100</mu2>
+    <material>Gazebo/Orange</material>
+  </gazebo>
+  <gazebo
+     reference="lwheel_front_link">
+    <mu1>100</mu1>
+    <mu2>100</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>
+  <gazebo
+     reference="rwheel_front_link">
+    <mu1>100</mu1>
+    <mu2>100</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>
+  <gazebo
+     reference="lwheel_back_link">
+    <mu1>100</mu1>
+    <mu2>100</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>
+  <gazebo
+     reference="rwheel_back_link">
+    <mu1>100</mu1>
+    <mu2>100</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo
+     reference="camera_Link">
+    <material>Gazebo/Black</material>
+    <sensor type="camera" name="camera">
+      <update_rate>30.0</update_rate>
+      <camera name="head">
+	<pose>0 0 1 0 0.785 0</pose>
+        <horizontal_fov>0.95993108859</horizontal_fov><!--80*PI/180 0.95993108859 1.3962634-->
+        <image>
+          <width>320</width>
+          <height>240</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+	<robotNamespace>/twowheel</robotNamespace>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>/camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_Link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/twowheel</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+      <legacyModeNS>true</legacyModeNS>
+    </plugin>
+  </gazebo>
+
+  <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lwheel_front_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rwheel_front_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="lwheel_back_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rwheel_back_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor4">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+</robot>

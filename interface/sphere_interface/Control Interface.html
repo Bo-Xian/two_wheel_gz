@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<link rel="SHORTCUT ICON" href="picture/icon.png">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<title>Sphere Robot Control</title>
+		<style>
+       		/*#control{
+       			width: 600px;
+       			margin: 20px auto;
+       			color: #FFFFFF;
+       		}*/
+			#in_control{
+				padding: 20px;
+				width: 460px;
+				height: 220px;
+				margin: 20px auto;
+				background-color: rgba(25,164,197,0.7); 
+				/*float: center;*/
+			}
+			#divsphereCanvas{
+				width: 700px;
+				height: 700px;
+				margin: 20px auto;
+				background-color: rgba(25,25,25,0.1); 
+			}
+       		/*#body {
+			background-image: url(picture/123.jpg);
+			background-size:cover;
+			}*/
+			#IMU_P{
+				width: 100px;
+				height: 30px;
+				font-size:20px;
+			}
+			#PX{
+				width: 100px;
+				height: 30px;
+				font-size:20px;
+			}
+			#PY{
+				width: 100px;
+				height: 30px;
+				font-size:20px;
+			}
+			#PZ{
+				width: 100px;
+				height: 30px;
+				font-size:20px;
+			}
+		</style>
+		<script type="text/javascript" src="./js/roslib/eventemitter2.min.js"></script>
+    	<script type="text/javascript" src="./js/roslib/roslib.min.js"></script>
+		<script type="text/javascript">
+			var ros = new ROSLIB.Ros({
+				url : 'ws://localhost:9090'
+			});
+			ros.on('connection', function() {
+   			console.log('Connection made!');
+			document.getElementById('connected').style.display = 'inline';
+			});
+			ros.on('error', function(error) {
+    		console.log('Error connecting to websocket server: ', error);
+    		});
+    		ros.on('close', function() {
+      		console.log('Connection to websocket server closed.');
+    		});
+    		var Sphere_Topic = new ROSLIB.Service({
+			ros : ros,
+			name :'/gazebo_sphere/Speed_Reset',
+			messageType : 'gazebo_sphere/Speed_Reset'
+			});
+		var sphere_req = new ROSLIB.ServiceRequest({
+				command : "0"
+			});
+		var DrawLine_Topic = new ROSLIB.Topic({
+			ros : ros,
+			name :'/line_force',
+			messageType : 'geometry_msgs/Twist'
+			});
+		var DrawLine_msg = new ROSLIB.Message({
+				linear : {
+					x : 0,
+					y : 0,
+					z : 0
+				},
+				angular : {
+					x : 0,
+					y : 0,
+					z : 0
+				}
+
+			});
+
+		var Length_Topic = new ROSLIB.Topic({
+			ros : ros,
+			name :'/line_length',
+			messageType : 'std_msgs/Float32'
+			});
+		var Length_msg = new ROSLIB.Message({
+			data : 0
+			});
+
+		var Start_Startegy_Topic = new ROSLIB.Topic({
+			ros : ros,
+			name :'/Html/Start_Strategy',
+			messageType : 'std_msgs/Bool'
+			});
+		var Start_Startegy_msg = new ROSLIB.Message({
+				data : false
+			});
+		var GetData_Topic = new ROSLIB.Topic({
+			ros : ros,
+			name :'/Html/SendData',
+			messageType : 'gazebo_sphere/getdata'
+			});
+		function ForwordFun(){
+			sphere_req.command = "front";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+		};
+		function BackwordFun(){
+			sphere_req.command = "back";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+		};
+		function LeftFun(){
+			sphere_req.command = "left";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+		};
+		function RightFun(){
+			sphere_req.command = "right";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+		};
+		function ResetFun(){
+			sphere_req.command = "reset";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+			document.getElementById("id_Reset").disabled = true;
+			document.getElementById("id_Start").disabled = true;
+			setTimeout(function(){document.getElementById("id_Reset").disabled = false;},2000);
+			setTimeout(function(){document.getElementById("id_Start").disabled = false;},500);
+		};
+		function StopFun(){
+			sphere_req.command = "stopmove";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+		};
+		function NewControldataFun(){
+			sphere_req.command = "NewControldata";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+		};
+	//--------------------------------------------------------------------------------------
+
+                                                                                                                                                                                                                               
+		GetData_Topic.subscribe(function(message){
+			var Position_X = document.getElementById("Postion_X");
+			var Position_Y = document.getElementById("Postion_Y");
+			var Position_Z = document.getElementById("Postion_Z");
+			var IMU_Pitch = document.getElementById("Pitch");
+			Position_X.innerHTML = message.robotPoseX.toPrecision(4)+' m';
+			Position_Y.innerHTML = message.robotPoseY.toPrecision(4)+' m';
+			Position_Z.innerHTML = message.robotPoseZ.toPrecision(4)+' m';
+			IMU_Pitch.innerHTML = (message.robotPitch/3.14159265*180).toPrecision(5)+' deg';
+			//GetData_Topic.unsubscribe();
+		});
+		function SendModelLength(value){
+			Length_msg.data = Number(value);
+			Length_Topic.publish(Length_msg);
+			console.log(Length_msg.data);
+			document.getElementById("answer").value = Length_msg.data;
+		}
+		function SendPathPoint(x, y, PointCount){
+			DrawLine_msg.linear.x = x;
+			DrawLine_msg.linear.y = y;
+			DrawLine_msg.linear.z = PointCount;
+			DrawLine_msg.angular.x = Number(document.getElementById("circle_flag").value); 
+			DrawLine_msg.angular.z = Number(document.getElementById("exp_theta").value)/180*3.14519265;	//parseFloat	
+			// console.log(document.getElementById("exp_theta").value);	
+			DrawLine_Topic.publish(DrawLine_msg);
+			draw_lineFlag = false;
+			document.getElementById("id_Start_Strategy").disabled = true;
+			document.getElementById("id_Forword").disabled = true;
+			document.getElementById("id_Left").disabled = true;
+			document.getElementById("id_Stop").disabled = true;
+			document.getElementById("id_Right").disabled = true;
+			document.getElementById("id_Backword").disabled = true;
+			document.getElementById("id_Reset").disabled = true;
+			document.getElementById("id_ClearLine").disabled = true;
+			document.getElementById("id_Start").disabled = true;
+			if(PathPointcnt > 1){
+				var delay = Math.sqrt(Math.pow(PathPoint[PathPointcnt-1][0] - PathPoint[PathPointcnt-2][0],2)
+					+Math.pow(-(PathPoint[PathPointcnt-1][1] - PathPoint[PathPointcnt-2][1]),2));
+			}
+			else{
+				var delay = Math.sqrt(Math.pow(PathPoint[PathPointcnt-1][0] - 0,2)
+					+Math.pow(-PathPoint[PathPointcnt-1][1]+700 - 0,2));
+			}
+			delay = delay*10;
+			console.log(delay);
+			setTimeout(function(){
+				draw_lineFlag = true;
+				document.getElementById("id_Start_Strategy").disabled = false;
+				document.getElementById("id_Forword").disabled = false;
+				document.getElementById("id_Left").disabled = false;
+				document.getElementById("id_Stop").disabled = false;
+				document.getElementById("id_Right").disabled = false;
+				document.getElementById("id_Backword").disabled = false;
+				document.getElementById("id_Reset").disabled = false;
+				document.getElementById("id_ClearLine").disabled = false;
+				document.getElementById("id_Start").disabled = false;
+			},delay);
+		};
+		function ClearLineFun(){
+			sphere_req.command = "clearline";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+			var canvas = document.getElementById("sphereCanvas");
+			if (canvas.getContext) {
+				var context = canvas.getContext("2d");
+			}
+			context.clearRect(0, 0, 700, 700);
+			init();
+			ObsArray = [];
+			ObsArraycnt = 0;
+			PathPoint = [];
+			PathPointcnt = 0;
+			findobs = false;
+			findpoint = false;
+			tmpObsArraycnt = 0;
+			tmpPathPointcnt = 0;
+			tempX = 0;
+			tempY = 0;
+			draw_lineFlag = false;
+			document.getElementById("id_Start_Strategy").disabled = true;
+			document.getElementById("id_Forword").disabled = true;
+			document.getElementById("id_Left").disabled = true;
+			document.getElementById("id_Stop").disabled = true;
+			document.getElementById("id_Right").disabled = true;
+			document.getElementById("id_Backword").disabled = true;
+			document.getElementById("id_Reset").disabled = true;
+			document.getElementById("id_ClearLine").disabled = true;
+			document.getElementById("id_Start").disabled = true;
+			setTimeout(function(){
+				draw_lineFlag = true;
+				document.getElementById("id_Start_Strategy").disabled = false;
+				document.getElementById("id_Forword").disabled = false;
+				document.getElementById("id_Left").disabled = false;
+				document.getElementById("id_Stop").disabled = false;
+				document.getElementById("id_Right").disabled = false;
+				document.getElementById("id_Backword").disabled = false;
+				document.getElementById("id_Reset").disabled = false;
+				document.getElementById("id_ClearLine").disabled = false;
+				document.getElementById("id_Start").disabled = false;
+			},3000);
+		};
+		function StartFun(){
+		sphere_req.command = "start_world";
+			Sphere_Topic.callService(sphere_req, function(checkecho){
+		  	if(Sphere_Topic.Already == true)
+		  		{
+			  
+		  		}
+	  		});
+			document.getElementById("id_Start").disabled = true;
+			setTimeout(function(){document.getElementById("id_Start").disabled = false;},500);
+		};
+		function Start_StrategyFun(){
+			Send_StrategyFun(true);
+			draw_lineFlag = false;
+			document.getElementById("id_Start_Strategy").disabled = true;
+			document.getElementById("id_Forword").disabled = true;
+			document.getElementById("id_Left").disabled = true;
+			document.getElementById("id_Stop").disabled = true;
+			document.getElementById("id_Right").disabled = true;
+			document.getElementById("id_Backword").disabled = true;
+			document.getElementById("id_ClearLine").disabled = true;
+			
+		};
+		function Stop_StrategyFun(){
+			Send_StrategyFun(false);
+			draw_lineFlag = true;
+			setTimeout(function(){
+				document.getElementById("id_Start_Strategy").disabled = false;
+				document.getElementById("id_Forword").disabled = false;
+				document.getElementById("id_Left").disabled = false;
+				document.getElementById("id_Stop").disabled = false;
+				document.getElementById("id_Right").disabled = false;
+				document.getElementById("id_Backword").disabled = false;
+				document.getElementById("id_ClearLine").disabled = false;
+			},500);
+			//console.log(PathPointcnt);
+		};
+		function Send_StrategyFun(flag){
+			Start_Startegy_msg.data = flag;
+			Start_Startegy_Topic.publish(Start_Startegy_msg);
+		};
+		/*function Load(){
+			var LoadWalkingGaitParameterClient = new ROSLIB.Service({
+                ros : ros,
+                name : '/web/LoadWalkingGaitParameter',
+                serviceType : 'walkinggait/LoadWalkingGaitParameter'
+            });
+            var WalkingGaitParameter_request = new ROSLIB.ServiceRequest({
+                mode : 0
+            });
+			WalkingGaitParameter_request.mode = Number(statetype);
+            LoadWalkingGaitParameterClient.callService(WalkingGaitParameter_request , function(walkinggait_parameter){
+                X_Swing_Range_tmp = walkinggait_parameter.X_Swing_Range;
+				Y_Swing_Range_tmp = walkinggait_parameter.Y_Swing_Range;
+				document.getElementById("X_Swing").value = X_Swing_Range_tmp;
+				document.getElementById("Y_Swing").value = Y_Swing_Range_tmp;	
+            });
+		}*/
+/*-------------------------------------------------------------------------------------*/
+function sleep(ms){
+
+var starttime= new Date().getTime();
+
+do{
+
+}while((new Date().getTime()-starttime)<ms)
+
+}
+var RobotArray = [];
+var RobotArraycnt = 0;
+var ObsArray = [];
+var ObsArraycnt = 0;
+var PathPoint = [];
+var PathPointcnt = 0;
+var findobs = false;
+var findpoint = false;
+var tmpObsArraycnt = 0;
+var tmpPathPointcnt = 0;
+var draw_lineFlag = true;
+var DegtoRad = Math.PI / 180;
+var aa = true;
+document.captureEvents(Event.MOUSEDOWN)
+document.onmousedown = getMouseXY;
+document.onmousemove = moveMouseXY;
+document.onmouseup = upMouseXY;
+document.onkeydown = getKeyboard;
+document.onkeyup = KeyboardUp;
+var tempX = 0;
+var tempY = 0;
+var ttX = 0;
+var ttY = 0;
+var keycode;
+function init(){
+	var canvas = document.getElementById("sphereCanvas");
+	if (canvas.getContext) {
+	var context = canvas.getContext("2d");
+	for(i = 0; i <= 700; i = i + 70)  //網格 x
+	{
+		context.beginPath();
+		context.strokeStyle = '#191919';
+		context.lineWidth = 0.5;
+		context.moveTo(i, 0);
+   		context.lineTo(i, 700);
+		context.stroke();
+	}
+	for(i = 0; i < 700; i = i + 70)  //網格 y
+	{
+		context.beginPath();
+		context.strokeStyle = '#191919';
+		context.lineWidth = 0.5;
+		context.moveTo(0, i);
+   		context.lineTo(700, i);
+		context.stroke();
+	}
+	context.beginPath();  
+	context.moveTo(0, 697);
+    	context.lineTo(700, 697);
+	context.strokeStyle = '#ff0000';  //x軸（橘線）
+	context.lineWidth = 3;
+	context.stroke();
+	context.beginPath();
+	context.moveTo(3, 0);
+    	context.lineTo(3, 700);
+	context.strokeStyle = '#00bb00';  //y軸（綠線）
+	context.lineWidth = 3;
+	context.stroke();
+	
+	context.strokeStyle = '#000000';  //外框（黑線）
+	context.strokeRect(0,0,700,700);
+	context.lineWidth = 3;
+}
+};
+function drawPath(e)
+{
+	 
+	if(PathPointcnt > 0)
+	{
+		var canvas = document.getElementById("sphereCanvas");
+		if (canvas.getContext) {
+			var context = canvas.getContext("2d");
+		}
+		// context.beginPath();
+		// context.strokeStyle = '#F60';
+		// context.lineWidth = 1;
+		// context.moveTo(0, 700);
+		// context.lineTo(PathPoint[0][0], PathPoint[0][1]);
+		// context.stroke();
+		// for(i = 0; i < PathPointcnt - 1; i++)
+		// {
+			context.beginPath();
+			context.strokeStyle = '#F60';
+			context.lineWidth = 1;
+			context.moveTo(PathPoint[PathPointcnt - 2][0], PathPoint[PathPointcnt - 2][1]);
+			context.lineTo(PathPoint[PathPointcnt - 1][0], PathPoint[PathPointcnt - 1][1]);
+			//context.moveTo(PathPoint[i][0], PathPoint[i][1]);
+			//context.lineTo(PathPoint[i + 1][0], PathPoint[i + 1][1]);
+			context.stroke();
+		//}
+		
+		/*context.beginPath();
+		context.strokeStyle = '#F60';
+		context.lineWidth = 1;
+		context.moveTo(PathPoint[PathPointcnt - 1][0], PathPoint[PathPointcnt - 1][1]);
+		context.lineTo(150, 40);
+		context.stroke();*/
+		//SendPathPoint(PathPoint[PathPointcnt][0], -PathPoint[PathPointcnt][1]+700, PathPointcnt);
+		//console.log(PathPoint[PathPointcnt-1][0]);
+		//console.log(-PathPoint[PathPointcnt-1][1]+700);
+	}
+		 
+	
+};
+function drawemptyPath(e)
+{
+	 
+	if(PathPointcnt > 0)
+	{
+		var canvas = document.getElementById("sphereCanvas");
+		if (canvas.getContext) {
+			var context = canvas.getContext("2d");
+		}
+		// context.beginPath();
+		// context.strokeStyle = '#860';
+		// context.lineWidth = 1;
+		// context.moveTo(0, 700);
+		// context.lineTo(PathPoint[0][0], PathPoint[0][1]);
+		// context.stroke();
+		// for(i = 0; i < PathPointcnt - 1; i++)
+		// {
+			context.beginPath();
+			context.strokeStyle = '#CCC';
+			context.lineWidth = 1;
+			context.moveTo(PathPoint[PathPointcnt - 2][0], PathPoint[PathPointcnt - 2][1]);
+			context.lineTo(PathPoint[PathPointcnt - 1][0], PathPoint[PathPointcnt - 1][1]);
+			context.stroke();
+		//}
+		
+		/*context.beginPath();
+		context.strokeStyle = '#F60';
+		context.lineWidth = 1;
+		context.moveTo(PathPoint[PathPointcnt - 1][0], PathPoint[PathPointcnt - 1][1]);
+		context.lineTo(150, 40);
+		context.stroke();*/
+		//SendPathPoint(PathPoint[PathPointcnt][0], -PathPoint[PathPointcnt][1]+700, PathPointcnt);
+		//console.log(PathPoint[PathPointcnt-1][0]);
+		//console.log(-PathPoint[PathPointcnt-1][1]+700);
+	}
+		 
+	
+};
+function drawField(e)
+{	
+	var canvas = document.getElementById("sphereCanvas");
+	if (canvas.getContext) {
+		var context = canvas.getContext("2d");
+	}
+	//context.clearRect(0, 0, 700, 700);
+	//init();
+	for(i = 0; i < ObsArraycnt; i++)
+	{
+                creatobs(ObsArray[i][0], ObsArray[i][1], ObsArray[i][2]);
+	}
+	drawPath(e);
+	// for(i = 0; i < PathPointcnt; i++)
+	// {
+		creatpoint(PathPoint[PathPointcnt - 1][0], PathPoint[PathPointcnt - 1][1]);
+		
+	// }
+	
+};
+function drawemptyField(e)
+{	
+	var canvas = document.getElementById("sphereCanvas");
+	if (canvas.getContext) {
+		var context = canvas.getContext("2d");
+	}
+	//context.clearRect(0, 0, 700, 700);
+	//init();
+	for(i = 0; i < ObsArraycnt; i++)
+	{
+                creatobs(ObsArray[i][0], ObsArray[i][1], ObsArray[i][2]);
+	}
+	drawemptyPath(e);
+	// for(i = 0; i < PathPointcnt; i++)
+	// {
+		creatpoint(PathPoint[PathPointcnt - 1][0], PathPoint[PathPointcnt - 1][1]);
+		
+	// }
+	
+};
+/*function creatobs(x, y, color){
+	var canvas = document.getElementById("sphereCanvas");
+	if (canvas.getContext) {
+		var context = canvas.getContext("2d");
+	}
+	if(x < 15)
+		x = 0;
+	else if (x > 585)
+		x = 585;
+	else
+		x = x - 15;
+	if(y < 5)
+		y = 0;
+	else if(y > 395)
+		y = 395;
+	else
+		y = y - 5;
+	//----------------------------------------
+        switch(color){
+                case 2 ://----------import blue obstacle
+		context.strokeStyle = '#00f';
+		break;
+
+                case 5 ://----------import red obstacle
+		context.strokeStyle = '#ff0000';
+		break;
+		
+
+	}
+	//context.strokeStyle = '#00f';
+	//-----------------------------------------
+	context.strokeRect(x-5,y-15,40,20); 
+
+
+};*/
+function creatpoint(x, y){
+	var canvas = document.getElementById("sphereCanvas");
+	if (canvas.getContext) {
+		var context = canvas.getContext("2d");
+	}
+	context.beginPath();
+	context.fillStyle = '#F60';
+	context.strokeStyle = '#F60';
+	context.arc(x,y,2,0,Math.PI*2);
+	context.fill();
+	context.stroke(); 
+};
+function upMouseXY(e) {
+	findobs = false;
+	findpoint = false;
+	keycode = 0;
+	//console.log(PathPoint);
+};
+function sortNumber(a,b)
+{
+	return b[1] - a[1]
+};
+function moveMouseXY(e) {
+	var offsetLeft = document.getElementById('sphereCanvas').offsetLeft
+	var offsetTop = document.getElementById('sphereCanvas').offsetTop
+	var offsetWidth = document.getElementById('sphereCanvas').offsetWidth
+	var offsetHeight = document.getElementById('sphereCanvas').offsetHeight
+	
+	if((e.pageX > offsetLeft) && (e.pageX < (offsetLeft + offsetWidth)) && (e.pageY > offsetTop) && (e.pageY < (offsetTop + offsetHeight)))
+	{
+		tempX = e.pageX - offsetLeft
+		tempY = e.pageY - offsetTop
+	}
+	else if(e.pageX < offsetLeft)
+	{
+		tempX = offsetLeft
+	}
+	else if(e.pageY < offsetTop)
+	{
+		tempY = offsetTop
+	}
+	else if(e.pageX > (offsetLeft + offsetWidth))
+	{
+		tempX = offsetLeft + offsetWidth
+	}
+	else if(e.pageY > (offsetTop + offsetHeight))
+	{
+		tempY = offsetTop + offsetHeight
+	}
+	if(findobs)
+	{
+		ObsArray[tmpObsArraycnt][0] = tempX;
+		ObsArray[tmpObsArraycnt][1] = tempY;
+		drawField();
+		//---	
+		/*Coordinatecmd.x = tempX;	
+		Coordinatecmd.y = tempY;	
+		Coordinatecmd.state = 2;
+		Coordinatecmd.cnt = Number(tmpObsArraycnt);
+		Obs_Topic.publish(Coordinatecmd);*/	
+		//---	
+	}	
+	if(findpoint)
+	{
+		PathPoint[tmpPathPointcnt][0] = tempX;
+		PathPoint[tmpPathPointcnt][1] = tempY;
+		drawField();
+		//console.log('123');
+		//SendPathPoint(5.0, 5.0, 2.0);
+		//---	
+		/*Coordinatecmd.x = tempX;	
+		Coordinatecmd.y = tempY;	
+		Coordinatecmd.state = 2;
+		Coordinatecmd.cnt = Number(tmpPathPointcnt);;
+		Point_Topic.publish(Coordinatecmd);*/
+		//---
+	}	
+	
+};
+function getMouseXY(e) {
+	var offsetLeft = document.getElementById('sphereCanvas').offsetLeft
+	var offsetTop = document.getElementById('sphereCanvas').offsetTop
+	var offsetWidth = document.getElementById('sphereCanvas').offsetWidth
+	var offsetHeight = document.getElementById('sphereCanvas').offsetHeight
+	if((e.pageX > offsetLeft) && (e.pageX < (offsetLeft + offsetWidth)) && (e.pageY > offsetTop) && (e.pageY < (offsetTop + offsetHeight)))
+	{
+		
+		tempX = e.pageX - offsetLeft
+   		tempY = e.pageY - offsetTop
+		switch(keycode){
+			case 65:	//a, 增\E5?路\E5?\E9\BB?
+				//console.log(PathPoint);
+				if(aa)
+				{
+					PathPoint[PathPointcnt - 1] = [];
+					PathPoint[PathPointcnt-1][0] = 0;
+					PathPoint[PathPointcnt-1][1] = 700;
+					aa = false;
+				}
+				
+				PathPoint[PathPointcnt] = [];
+				
+				PathPoint[PathPointcnt][0] = tempX;
+				PathPoint[PathPointcnt][1] = tempY;
+				
+				console.log(PathPoint[PathPointcnt][0]);
+				console.log(PathPoint[PathPointcnt][1]);
+				console.log(PathPoint[PathPointcnt-1][0]);
+				console.log(PathPoint[PathPointcnt-1][1]);
+				console.log(PathPointcnt);
+				console.log(Math.pow(PathPoint[PathPointcnt - 1][0]-PathPoint[PathPointcnt][0],2));
+				console.log(Math.pow(PathPoint[PathPointcnt - 1][1]-PathPoint[PathPointcnt][1],2));
+				// console.log('aaaaa');
+				
+				console.log(Math.sqrt(Math.pow(PathPoint[PathPointcnt - 1][0]-PathPoint[PathPointcnt][0],2)+Math.pow(PathPoint[PathPointcnt - 1][1]-PathPoint[PathPointcnt][1],2)));
+				if(Math.sqrt(Math.pow(PathPoint[PathPointcnt - 1][0]-PathPoint[PathPointcnt][0],2)+Math.pow(PathPoint[PathPointcnt - 1][1]-PathPoint[PathPointcnt][1],2))>70*document.getElementById("answer").value)
+				{
+						PathPointcnt = PathPointcnt + 1;
+						//PathPoint.sort(sortNumber);
+						
+						//console.log(PathPoint);
+						//---	
+						/*Coordinatecmd.x = tempX;	
+						Coordinatecmd.y = tempY;	
+						Coordinatecmd.state = 0;
+						Coordinatecmd.cnt = 0;
+						Point_Topic.publish(Coordinatecmd);	*/
+						//---
+						drawField(e);
+						SendPathPoint(tempX, -tempY+700, PathPointcnt);
+						console.log(tempX);
+						console.log(-tempY+700);
+						console.log(offsetWidth);
+						console.log(e.pageX);
+						console.log(e.pageY);
+						console.log(Math.sqrt(e.pageX*e.pageX+(e.pageY-700)*(e.pageY-700)));
+						console.log(document.getElementById("answer").value);
+						break;
+					//---------------------------------------------------------------add blue obstacle
+		/*			case 66:	//b, 增\E5??\8D色?\9C\E7???
+						ObsArraycnt = ObsArraycnt + 1;
+						ObsArray[ObsArraycnt - 1] = [];
+						ObsArray[ObsArraycnt - 1][0] = tempX;
+						ObsArray[ObsArraycnt - 1][1] = tempY;
+										ObsArray[ObsArraycnt - 1][2] = 2;
+										creatobs(tempX, tempY, ObsArray[ObsArraycnt - 1][2]);
+						//---	
+						Coordinatecmd.x = tempX;	
+						Coordinatecmd.y = tempY;	
+						Coordinatecmd.state = 0;
+						Coordinatecmd.cnt = 0;
+						//-------------------------------insert blue color flag
+						Coordinatecmd.color = 2;
+						//-------------------------------insert blue color flag
+						Obs_Topic.publish(Coordinatecmd);	
+						//---			
+						break;
+
+					//---------------------------------------------------------------add red obstacle
+					case 82:	//r, increasing red obstacle
+						ObsArraycnt = ObsArraycnt + 1;
+						ObsArray[ObsArraycnt - 1] = [];
+						ObsArray[ObsArraycnt - 1][0] = tempX;
+						ObsArray[ObsArraycnt - 1][1] = tempY;
+						ObsArray[ObsArraycnt - 1][2] = 5;
+										creatobs(tempX, tempY, ObsArray[ObsArraycnt - 1][2]);
+						//---	
+						Coordinatecmd.x = tempX;	
+						Coordinatecmd.y = tempY;	a
+						Coordinatecmd.state = 0;
+						Coordinatecmd.cnt = 0;
+						//-------------------------------insert red color flag
+						Coordinatecmd.color = 5;
+						//-------------------------------insert red color flag
+						Obs_Topic.publish(Coordinatecmd);	
+						//---			
+						break;*/
+					//---------------------------------------------------------------
+					/*case 68:	//d, ?\AA除路\E5?\E9\BB?
+						for(i = 0; i < PathPointcnt; i++)
+						{
+							if(((Math.abs(tempX - PathPoint[i][0])) <= 2) && ((Math.abs(tempY - PathPoint[i][1])) <= 2))
+							{
+								if(i != PathPointcnt - 1)
+								{
+									for(j = i + 1; j < PathPointcnt; j++)a
+									{
+										PathPoint[j - 1] = PathPoint[j];
+									}
+									var tmp = PathPoint.pop();
+								}
+								else
+								{
+									var tmp = PathPoint.pop();
+								}
+								PathPointcnt = PathPointcnt - 1;
+								tmpPathPointcnt = i;
+								drawField();
+								//---	
+								Coordinatecmd.x = tempX;	
+								Coordinatecmd.y = tempY;	
+								Coordinatecmd.state = 1;
+								Coordinatecmd.cnt = Number(tmpPathPointcnt);;
+								Point_Topic.publish(Coordinatecmd);	
+								//---
+								break;
+							}
+						}
+						break;*/
+					/*case 73:	//i, 移\E5?路\E5?\E9\BB?
+						for(i = 0; i < PathPointcnt; i++)
+						{
+							if(((Math.abs(tempX - PathPoint[i][0])) <= 2) && ((Math.abs(tempY - PathPoint[i][1])) <= 2))
+							{
+								findpoint = true;
+								tmpPathPointcnt = i;
+								PathPoint[tmpPathPointcnt][0] = tempX;
+								PathPoint[tmpPathPointcnt][1] = tempY;
+								drawField();
+								//---	
+								Coordinatecmd.x = tempX;	
+								Coordinatecmd.y = tempY;	
+								Coordinatecmd.state = 2;
+								Coordinatecmd.cnt = Number(tmpPathPointcnt);;
+								Point_Topic.publish(Coordinatecmd);	
+								//---
+								break;
+							}
+							else
+							{
+								findpoint = false;
+							}
+						}
+						break;	*/		
+		/*			case 75:	//k, ?\AA除?\9C\E7???
+						for(i = 0; i < ObsArraycnt; i++)
+						{
+							if(((Math.abs(tempX - ObsArray[i][0])) <= 15) && ((Math.abs(tempY - ObsArray[i][1])) <= 5))
+							{
+								if(i != ObsArraycnt - 1)
+								{
+									for(j = i + 1; j < ObsArraycnt; j++)
+									{
+										ObsArray[j - 1] = ObsArray[j];
+									}
+									var tmp = ObsArray.pop();
+								}
+								else
+								{
+									var tmp = ObsArray.pop();
+								}
+								ObsArraycnt = ObsArraycnt - 1;
+								tmpObsArraycnt = i;
+								drawField();
+								//---	
+								Coordinatecmd.x = tempX;	
+								Coordinatecmd.y = tempY;	
+								Coordinatecmd.state = 1;
+								Coordinatecmd.cnt = Number(tmpObsArraycnt);
+								Obs_Topic.publish(Coordinatecmd);	
+								//---	
+								break;
+							}
+						}
+						break;
+					case 77:	//m, 移\E5??\9C\E7???
+						for(i = 0; i < ObsArraycnt; i++)
+						{
+							if(((Math.abs(tempX - ObsArray[i][0])) <= 15) && ((Math.abs(tempY - ObsArray[i][1])) <= 5))
+							{
+								findobs = true;
+								tmpObsArraycnt = i;
+								//console.log('findobs, tmpObsArraycnt:',tmpObsArraycnt);
+								ObsArray[tmpObsArraycnt][0] = tempX;
+								ObsArray[tmpObsArraycnt][1] = tempY;
+								drawField();
+								//---	
+								Coordinatecmd.x = tempX;	
+								Coordinatecmd.y = tempY;	
+								Coordinatecmd.state = 2;
+								Coordinatecmd.cnt = Number(tmpObsArraycnt);
+								Obs_Topic.publish(Coordinatecmd);	
+								//---	
+								break;
+							}
+							else
+							{
+								findobs = false;
+							}
+						}
+						break;*/	
+				}
+				break;
+		case 68:	//a, 增\E5?路\E5?\E9\BB?
+				//console.log(PathPoint);
+				if(aa)
+				{
+					PathPoint[PathPointcnt - 1] = [];
+					PathPoint[PathPointcnt-1][0] = 0;
+					PathPoint[PathPointcnt-1][1] = 700;
+					aa = false;
+				}
+				
+				PathPoint[PathPointcnt] = [];
+				
+				PathPoint[PathPointcnt][0] = tempX;
+				PathPoint[PathPointcnt][1] = tempY;
+				console.log(event.which);
+				console.log(PathPoint[PathPointcnt][0]);
+				console.log(PathPoint[PathPointcnt][1]);
+				console.log(PathPoint[PathPointcnt-1][0]);
+				console.log(PathPoint[PathPointcnt-1][1]);
+				console.log(PathPointcnt);
+				// console.log(Math.pow(PathPoint[PathPointcnt - 1][0]-PathPoint[PathPointcnt][0],2));
+				// console.log(Math.pow(PathPoint[PathPointcnt - 1][1]-PathPoint[PathPointcnt][1],2));
+				console.log('bbbbbb');
+				
+				// console.log(Math.sqrt(Math.pow(PathPoint[PathPointcnt - 1][0]-PathPoint[PathPointcnt][0],2)+Math.pow(PathPoint[PathPointcnt - 1][1]-PathPoint[PathPointcnt][1],2)));
+		
+				PathPointcnt = PathPointcnt + 1;
+				//PathPoint.sort(sortNumber);
+				
+				//console.log(PathPoint);
+				//---	
+				/*Coordinatecmd.x = tempX;	
+				Coordinatecmd.y = tempY;	
+				Coordinatecmd.state = 0;
+				Coordinatecmd.cnt = 0;
+				Point_Topic.publish(Coordinatecmd);	*/
+				//---
+				drawemptyField(e);
+				SendPathPoint(tempX, -tempY+700, PathPointcnt);
+				console.log(tempX);
+				console.log(-tempY+700);
+				console.log(offsetWidth);
+				console.log(e.pageX);
+				console.log(e.pageY);
+				console.log(Math.sqrt(e.pageX*e.pageX+(e.pageY-700)*(e.pageY-700)));
+				console.log(document.getElementById("answer").value);
+				break;
+				
+		
+		}
+	}
+};
+function getKeyboard(e){
+	if(draw_lineFlag){		
+		switch(event.which || event.keyCode){
+			case 65:	//a, 增\E5?路\E5?\E9\BB?
+				keycode = 65;				
+				break;
+			case 66:	//b, 增\E5??\8D色?\9C\E7???
+				keycode = 66;
+				break;
+			case 68:	//d, ?\AA除路\E5?\E9\BB?
+				keycode = 68;
+				break;
+			case 73:	//i, 移\E5?路\E5?\E9\BB?
+				keycode = 73;
+				break;
+			case 75:	//k, ?\AA除?\9C\E7???
+				keycode = 75;
+				break;
+			case 77:	//m, 移\E5??\9C\E7???
+				keycode = 77;
+				break;
+			//-----------------------------------------------add red obs
+			case 82:	//r, add red obstacle
+				keycode = 82;
+				break;
+	
+			//-----------------------------------------------add red obs	
+		}
+	}
+};
+function KeyboardUp(e){
+	keycode = 0;
+};
+function setCircleFlag()
+{
+	console.log(document.getElementById("circle_flag").innerHTML);
+	if(document.getElementById("circle_flag").innerHTML == "Draw Curve")
+	{
+		// document.getElementById("circle_flag").checked = true;
+		document.getElementById("circle_flag").innerHTML = "Draw Line"
+		document.getElementById("circle_flag").value = "1";
+	}
+	else
+	{
+		// document.getElementById("circle_flag").checked = false;
+		document.getElementById("circle_flag").innerHTML = "Draw Curve"
+		document.getElementById("circle_flag").value = "0";
+	}
+};
+
+		</script>
+	</head>
+	<!--body id="body"-->
+        <body onLoad="init();">
+        <p id="connected" style="color:#00D600; display:none">
+          Connected
+        </p>
+		<div id="head" align="center">
+		<h1><img class="picture" src="picture/icon.png" width="30px">Sphere Robot Control</h1>
+		</div>
+			<div id="divsphereCanvas">
+				<canvas id="sphereCanvas" width="700" height="700"></canvas>
+			</div>
+			<div id="divsphere" align="center" height="700">
+				<tr>					
+					<td>
+						<input  type="radio" name="size" value="0.5" onClick="SendModelLength(this.value)"/>0.5M
+						<input  type="radio" name="size" value="1" onClick="SendModelLength(this.value)"/>1M
+						<input  type="radio" name="size" value="2" onClick="SendModelLength(this.value)" checked/>2M
+						<input  type="radio" name="size" value="3" onClick="SendModelLength(this.value)"/>3M
+						<input  type="radio" name="size" value="5" onClick="SendModelLength(this.value)"/>5M
+						<input type="text" id="answer" size="10"/>
+						&nbsp;&nbsp;exp_theta&nbsp;=&nbsp;
+						<input type="text" name="exp_theta" id="exp_theta" size="10" value="30"/>
+						<!-- <input  type="radio" name="circle_flag" id="circle_flag" onClick="setCircleFlag()"/>&nbsp;Curve -->
+						<button type="button" id="circle_flag" style="width: 100px;height: 20px" onclick="setCircleFlag()">Draw Curve</button>
+					</td>							
+				</tr>
+			</div>
+			<div id="sphere" align="center">	
+				<div id="in_control" style="center;">
+					<table style="float: left;">
+						<tr align="center" id="PX">
+	    					<td width="80">Postion</td>
+	    					<td width="80">X</td>
+	    					<td width="100"><label id="Postion_X">0</label></td>
+	    				</tr>
+						<tr align="center" id="PY">
+							<td></td>
+	    					<td>Y</td>
+	    					<td width="100"><label id="Postion_Y">0</label></td>
+	    				</tr>
+						<tr align="center" id="PZ">
+							<td></td>
+	    					<td>Z</td>
+	    					<td width="100"><label id="Postion_Z">0</label></td>
+	    				</tr>
+	    				<tr>
+	    					<td colspan="3">-------------------------------------------------------</td>
+	    				</tr>
+						<tr align="center" id="IMU_P">
+	    					<td>IMU</td>
+	    					<td>Pitch</td>
+	    					<td width="100"><label id="Pitch">0</label></td>
+	    				</tr>
+	    				<tr>
+	    					<td colspan="3">-------------------------------------------------------</td>
+	    				</tr>
+						<td><button type="button" id="id_Reset" style="width: 85px;height: 30px" onclick="ResetFun()">Reset</button></td>
+						<td><button type="button" id="id_Start" style="width: 85px;height: 30px" onclick="StartFun()">Start</button></td>
+						<td><button type="button" id="id_ClearLine" style="width: 85px;height: 30px" onclick="ClearLineFun()">Clear Line</button></td>
+						<!--input type="button" style="width: 85px;height: 30px" value="Run" id=myButton1" onclick="change()"></input-->
+	    			</table>
+					<p></p>
+	        		<table>
+	    			<button type="button" id="id_Forword" style="background-image:url('picture/F.png'); width: 40px;height: 40px" onclick="ForwordFun()">F</button>
+					<br>
+	        		<button type="button" id="id_Left" style="background-image:url('picture/L.png'); width: 40px;height: 40px" onclick="LeftFun()">L</button>
+	        		<button type="button" id="id_Stop" style="background-image:url('picture/S.png'); width: 40px;height: 40px; color:red;" onclick="StopFun()">.</button>
+	        		<button type="button" id="id_Right" style="background-image:url('picture/R.png'); width: 40px;height: 40px" onclick="RightFun()">R</button>
+					<br>
+	        		<button type="button" id="id_Backword" style="background-image:url('picture/B.png'); width: 40px;height: 40px" id="ggg" onclick="BackwordFun()">B</button>
+					<br>
+					<br>
+					<button type="button" id="id_Start_Strategy" style="width: 120px;height: 30px" onclick="Start_StrategyFun()">Start_Strategy</button>
+					<br>
+					<br>
+					<button type="button" style="width: 120px;height: 30px" onclick="Stop_StrategyFun()">Stop_Strategy</button>
+	    			</table>
+				</div>
+			</div>
+	</body>
+</html>
+

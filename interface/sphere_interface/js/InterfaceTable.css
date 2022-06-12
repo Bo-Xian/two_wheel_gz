@@ -1,0 +1,50 @@
+#container{
+  width: 1500px;
+  height: 800px; 
+}
+.topbox{
+  width: 770px;
+  height: 30px; 
+  float: top;
+}
+.leftbox{
+  width: 50px;
+  height: 800px; 
+  float: left;
+  margin-top:100px; 
+}
+.box{
+  background-color: #AAAAAA;
+  width: 1170px;
+  height: 137px;
+  border:5px #000000 groove;
+  margin-top:5px;
+  margin-bottom:5px;  
+  margin-left:40px; 
+  float: left;
+ 
+}
+.smallbox{
+  background-color: #bbbbbb;
+  width: 1150px;
+  height: 20px;
+  border:1px #111 solid;
+  float: left;
+
+}
+.inthesmallbox{
+  width: 48px;
+  height: 20px;
+  border: 1px #111 solid;
+  float: left;
+}
+
+#MotionTable{
+  width: 2100px;
+  float: left;
+}
+.textbox{
+  background-color: #ddd;
+  width: 45px; 
+  margin: 0.5px;
+}

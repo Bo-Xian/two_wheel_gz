@@ -1,0 +1,23 @@
+twowheel:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+
+  # Velocity Controllers ---------------------------------------
+  lwheel_front_joint_velocity_controller:
+    type: effort_controllers/JointVelocityController
+    joint: lwheel_front_joint
+    pid: {p: 50.0, i: 0.1, d: 0.0}
+  rwheel_front_joint_velocity_controller:
+    type: effort_controllers/JointVelocityController
+    joint: rwheel_front_joint
+    pid: {p: 50.0, i: 0.1, d: 0.0}
+  lwheel_back_joint_velocity_controller:
+    type: effort_controllers/JointVelocityController
+    joint: lwheel_back_joint
+    pid: {p: 50.0, i: 0.1, d: 0.0}
+  rwheel_back_joint_velocity_controller:
+    type: effort_controllers/JointVelocityController
+    joint: rwheel_back_joint
+    pid: {p: 50.0, i: 0.1, d: 0.0}

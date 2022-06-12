@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>OBS Interface</title>
+<script type="text/javascript"></script>
+<script language="javascript">
+function init(){
+	var canvas = document.getElementById("obsCanvas");
+	if (canvas.getContext) {
+	var context = canvas.getContext("2d");
+	for(i = 50; i < 600; i = i + 50)
+	{
+		context.beginPath();
+		context.strokeStyle = '#ff0000';
+		context.lineWidth = 0.5;
+		context.moveTo(i, 50);
+   		context.lineTo(i, 350);
+		context.stroke();
+	}
+	for(i = 50; i < 350; i = i + 50)
+	{
+		context.beginPath();
+		context.strokeStyle = '#ff0000';
+		context.lineWidth = 0.5;
+		context.moveTo(0, i);
+   		context.lineTo(600, i);
+		context.stroke();
+	}
+	context.beginPath();
+	context.moveTo(0, 50);
+   	context.lineTo(600, 50);
+	context.strokeStyle = '#ff0000';
+	context.lineWidth = 2;
+	context.stroke();
+	context.beginPath();
+	context.moveTo(0, 350);
+    	context.lineTo(600, 350);
+	context.strokeStyle = '	#ff0000';
+	context.stroke();
+	context.beginPath();
+	context.moveTo(150, 50);
+    	context.lineTo(150, 350);
+	context.strokeStyle = '	#00ff00';
+	context.lineWidth = 3;
+	context.stroke();
+	context.beginPath();
+	context.moveTo(0, 200);
+    	context.lineTo(600, 200);
+	context.strokeStyle = '	#00ff00';
+	context.lineWidth = 3;
+	context.stroke();
+	context.beginPath();
+	context.moveTo(450, 50);
+    	context.lineTo(450, 350);
+	context.strokeStyle = '	#00ff00';
+	context.lineWidth = 3;
+	context.stroke();
+	context.beginPath();
+	context.moveTo(300, 0);
+    	context.lineTo(300, 400);
+	context.strokeStyle = '#000000';
+	context.lineWidth = 2;
+	context.stroke();
+	
+	context.strokeStyle = '#000';
+	context.strokeRect(0,0,600,400);
+	}
+};
+</script>
+</head>
+
+<body onLoad="init();">
+<style type="text/css">
+	.div{ 
+  		height:400px;
+  		width:600px;
+  		background:#FFF;		
+		margin:0 auto;
+		} 
+	.Button{
+		width:125px;
+	}
+	section {
+        		background-color: gray;
+    	    	padding: 0px;
+        		margin: 0px;
+				width: 350px;
+				height: 400px;	
+       		}
+</style>
+<script type="text/javascript" src="./js/roslib/eventemitter2.min.js"></script>
+<script type="text/javascript" src="./js/roslib/roslib.min.js"></script>
+<script src="./jquery-ui-1.11.4/jquery-1.4.1.js"></script>
+<script type="text/javascript"></script>
+<script language="javascript">
+<!--ROS-->
+var ros = new ROSLIB.Ros({
+	url : 'ws://172.17.121.10:9090'
+});
+ros.on('connection', function() {
+    console.log('Connection made!');
+    document.getElementById('connected').style.display = 'inline';
+});
+ros.on('error', function(error) {
+	console.log('Error connecting to websocket server: ', error);
+});
+ros.on('close', function() {
+	console.log('Connection to websocket server closed.');
+});
+var Obs_Topic = new ROSLIB.Topic({
+		ros : ros,
+		name :'/web/obsdata',
+		messageType : 'strategy/Coordinate'
+});
+var Point_Topic = new ROSLIB.Topic({
+		ros : ros,
+		name :'/web/pointdata',
+		messageType : 'strategy/Coordinate'
+});
+var Cntcmd = new ROSLIB.Message({
+	obscnt : 0,
+	pointcnt : 0
+});
+var DontMove_Topic = new ROSLIB.Topic({
+		ros : ros,
+		name :'/web/dontmove',
+		messageType : 'std_msgs/Bool'
+});
+var Dontmovecmd = new ROSLIB.Message({
+	data : false
+});
+var Coordinatecmd = new ROSLIB.Message({
+	x : 0,
+	y : 0,
+	state : 0,
+	cnt : 0
+});
+var SaveParameter_Topic = new ROSLIB.Topic({
+		ros : ros,
+		name :'/web/SaveParameter',
+		messageType : 'strategy/OBSparameter'
+});
+var SaveParametercmd = new ROSLIB.Message({
+	particle_candidat_num : 50,
+	particle_PSO_num : 50,
+	head_vertical_value : 410,
+	robot_lens_height : 50.0,
+	image_top_length : 146.0,
+	image_center_length : 59.0,
+	image_bottom_length : 26.0,
+	image_center_width : 41.0,
+	camera_synthesis_left : 33,
+	camera_synthesis_right : 33,
+	robot_step_b : 24000,
+	robot_step_m : 16000,
+	robot_step_s : 8000,
+	particle_candidat_step_b : 12,
+	particle_candidat_step_m : 26,
+	particle_candidat_step_s : 36,
+	robot_rotation_left_b : 12,
+	robot_rotation_left_m : 8,
+	robot_rotation_left_s : 5,
+	robot_rotation_right_b : -14,
+	robot_rotation_right_m : -10,
+	robot_rotation_right_s : -6,
+	particle_rotation_left_b : 15,
+	particle_rotation_left_m : 10,
+	particle_rotation_left_s : 5,
+	particle_rotation_right_b : -15,
+	particle_rotation_right_m : -10,
+	particle_rotation_right_s : -5,
+	obs_size : 2500,
+	robot_walk_delay_b : 9000,
+	robot_walk_delay_m : 6500,
+	robot_walk_delay_s : 4500,
+	robot_head_delay : 900,
+	robot_rotation_delay : 3500,
+	particle_random_angle : 3,
+	particle_random_step : 2,
+	particle_top_candidat_num : 15,
+	particle_danger_dis : 12,
+	particle_route_dis : 12,
+	rotate_time_two : 30,
+	rotate_time_three : 40
+});
+var Particlelistener = new ROSLIB.Topic({
+	ros : ros,
+	name : '/strategy/particle',
+	messageType : 'strategy/ParticleList'
+});
+Particlelistener.subscribe(function(msg) {
+	console.log("receive");
+	for(i = 0; i < msg.particlecnt; i++)
+	{
+		console.log("x:",msg.particleX[i]);
+		console.log("y:", msg.particleY[i]);
+	}
+});
+var Robotlistener = new ROSLIB.Topic({
+	ros : ros,
+	name : '/strategy/robot',
+	messageType : 'strategy/RobotPosition'
+});
+Robotlistener.subscribe(function(msg) {
+	console.log("receive robot");
+	console.log("angle:",msg.angle);
+	console.log("x:",msg.x);
+	console.log("y:", msg.y);
+	drawRobot(msg.x, 350 - msg.y, msg.angle);
+});
+<!--ROS end-->
+var RobotArray = [];
+var RobotArraycnt = 0;
+var ObsArray = [];
+var ObsArraycnt = 0;
+var PathPoint = [];
+var PathPointcnt = 0;
+var findobs = false;
+var findpoint = false;
+var tmpObsArraycnt = 0;
+var tmpPathPointcnt = 0;
+var DegtoRad = Math.PI / 180;
+document.captureEvents(Event.MOUSEDOWN)
+document.onmousedown = getMouseXY;
+document.onmousemove = moveMouseXY;
+document.onmouseup = upMouseXY;
+document.onkeydown = getKeyboard;
+document.onkeyup = KeyboardUp;
+var tempX = 0
+var tempY = 0
+var tmpvalue = 0
+var keycode;
+function drawRobot(x, y, angle)
+{
+	RobotArraycnt = RobotArraycnt + 1;
+	RobotArray[RobotArraycnt - 1] = [];
+	RobotArray[RobotArraycnt - 1][0] = x;
+	RobotArray[RobotArraycnt - 1][1] = y;
+	RobotArray[RobotArraycnt - 1][2] = angle;
+	var canvas = document.getElementById("obsCanvas");
+	if (canvas.getContext) {3
+		var context = canvas.getContext("2d");
+	}
+	//drawField();
+	context.beginPath();
+	context.fillStyle = '#FF8080';
+	context.strokeStyle = '#FF8080';
+	context.arc(x,y,2,0,Math.PI*2);
+	context.stroke();
+	context.beginPath();
+	context.strokeStyle = '#FF8080';
+	context.lineWidth = 1;
+	context.moveTo(x, y);
+	context.lineTo(x + 10 * Math.cos(angle * DegtoRad), y - 10 * Math.sin(angle * DegtoRad));
+	context.stroke();
+}
+function drawPath()
+{
+	if(PathPointcnt > 0)
+	{
+		var canvas = document.getElementById("obsCanvas");
+		if (canvas.getContext) {
+			var context = canvas.getContext("2d");
+		}
+		context.beginPath();
+		context.strokeStyle = '#F60';
+		context.lineWidth = 1;
+		context.moveTo(150, 350);
+		context.lineTo(PathPoint[0][0], PathPoint[0][1]);
+		context.stroke();
+		for(i = 0; i < PathPointcnt - 1; i++)
+		{
+			context.beginPath();
+			context.strokeStyle = '#F60';
+			context.lineWidth = 1;
+			context.moveTo(PathPoint[i][0], PathPoint[i][1]);
+			context.lineTo(PathPoint[i + 1][0], PathPoint[i + 1][1]);
+			context.stroke();
+		}
+		context.beginPath();
+		context.strokeStyle = '#F60';
+		context.lineWidth = 1;
+		context.moveTo(PathPoint[PathPointcnt - 1][0], PathPoint[PathPointcnt - 1][1]);
+		context.lineTo(150, 40);
+		context.stroke();
+	}
+	
+};
+function drawField()
+{	
+	var canvas = document.getElementById("obsCanvas");
+	if (canvas.getContext) {
+		var context = canvas.getContext("2d");
+	}
+	context.clearRect(0, 0, 600, 400);
+	init();
+	for(i = 0; i < ObsArraycnt; i++)
+	{
+                creatobs(ObsArray[i][0], ObsArray[i][1], ObsArray[i][2]);
+	}
+	for(i = 0; i < PathPointcnt; i++)
+	{
+		creatpoint(PathPoint[i][0], PathPoint[i][1]);
+	}
+	drawPath();
+};
+function creatobs(x, y, color){
+	var canvas = document.getElementById("obsCanvas");
+	if (canvas.getContext) {
+		var context = canvas.getContext("2d");
+	}
+	if(x < 15)
+		x = 0;
+	else if (x > 585)
+		x = 585;
+	else
+		x = x - 15;
+	if(y < 5)
+		y = 0;
+	else if(y > 395)
+		y = 395;
+	else
+		y = y - 5;
+	//----------------------------------------
+        switch(color){
+                case 2 ://----------import blue obstacle
+		context.strokeStyle = '#00f';
+		break;
+
+                case 5 ://----------import red obstacle
+		context.strokeStyle = '#ff0000';
+		break;
+		
+
+	}
+	//context.strokeStyle = '#00f';
+	//-----------------------------------------
+	context.strokeRect(x-5,y-15,40,20); 
+
+
+};
+function creatpoint(x, y){
+	var canvas = document.getElementById("obsCanvas");
+	if (canvas.getContext) {
+		var context = canvas.getContext("2d");
+	}
+	context.beginPath();
+	context.fillStyle = '#F60';
+	context.strokeStyle = '#F60';
+	context.arc(x,y,2,0,Math.PI*2);
+	context.stroke(); 
+};
+function upMouseXY(e) {
+	findobs = false;
+	findpoint = false;
+	keycode = 0;
+	//console.log(PathPoint);
+};
+function sortNumber(a,b)
+{
+	return b[1] - a[1]
+}
+function moveMouseXY(e) {
+	var offsetLeft = document.getElementById('obsCanvas').offsetLeft
+	var offsetTop = document.getElementById('obsCanvas').offsetTop
+	var offsetWidth = document.getElementById('obsCanvas').offsetWidth
+	var offsetHeight = document.getElementById('obsCanvas').offsetHeight
+	if((e.pageX > offsetLeft) && (e.pageX < (offsetLeft + offsetWidth)) && (e.pageY > offsetTop) && (e.pageY < (offsetTop + offsetHeight)))
+	{
+		tempX = e.pageX - offsetLeft
+		tempY = e.pageY - offsetTop
+	}
+	else if(e.pageX < offsetLeft)
+	{
+		tempX = offsetLeft
+	}
+	else if(e.pageY < offsetTop)
+	{
+		tempY = offsetTop
+	}
+	else if(e.pageX > (offsetLeft + offsetWidth))
+	{
+		tempX = offsetLeft + offsetWidth
+	}
+	else if(e.pageY > (offsetTop + offsetHeight))
+	{
+		tempY = offsetTop + offsetHeight
+	}
+	if(findobs)
+	{
+		ObsArray[tmpObsArraycnt][0] = tempX;
+		ObsArray[tmpObsArraycnt][1] = tempY;
+		drawField();
+		//---	
+		Coordinatecmd.x = tempX;	
+		Coordinatecmd.y = tempY;	
+		Coordinatecmd.state = 2;
+		Coordinatecmd.cnt = Number(tmpObsArraycnt);
+		Obs_Topic.publish(Coordinatecmd);	
+		//---	
+	}	
+	if(findpoint)
+	{
+		PathPoint[tmpPathPointcnt][0] = tempX;
+		PathPoint[tmpPathPointcnt][1] = tempY;
+		drawField();
+		//---	
+		Coordinatecmd.x = tempX;	
+		Coordinatecmd.y = tempY;	
+		Coordinatecmd.state = 2;
+		Coordinatecmd.cnt = Number(tmpPathPointcnt);;
+		Point_Topic.publish(Coordinatecmd);	
+		//---
+	}	
+};
+function getMouseXY(e) {
+	var offsetLeft = document.getElementById('obsCanvas').offsetLeft
+	var offsetTop = document.getElementById('obsCanvas').offsetTop
+	var offsetWidth = document.getElementById('obsCanvas').offsetWidth
+	var offsetHeight = document.getElementById('obsCanvas').offsetHeight
+	if((e.pageX > offsetLeft) && (e.pageX < (offsetLeft + offsetWidth)) && (e.pageY > offsetTop) && (e.pageY < (offsetTop + offsetHeight)))
+	{
+		tempX = e.pageX - offsetLeft
+   		tempY = e.pageY - offsetTop
+		switch(keycode){
+			case 65:	//a, 增加路徑點d
+				//console.log(PathPoint);
+				PathPointcnt = PathPointcnt + 1;
+				PathPoint[PathPointcnt - 1] = [];
+				PathPoint[PathPointcnt - 1][0] = tempX;
+				PathPoint[PathPointcnt - 1][1] = tempY;
+				PathPoint.sort(sortNumber);
+				
+				//console.log(PathPoint);
+				//---	
+				Coordinatecmd.x = tempX;	
+				Coordinatecmd.y = tempY;	
+				Coordinatecmd.state = 0;
+				Coordinatecmd.cnt = 0;
+				Point_Topic.publish(Coordinatecmd);	
+				//---
+				drawField();
+				break;
+			//---------------------------------------------------------------add blue obstacle
+			case 66:	//b, 增加藍色障礙物
+				ObsArraycnt = ObsArraycnt + 1;
+				ObsArray[ObsArraycnt - 1] = [];
+				ObsArray[ObsArraycnt - 1][0] = tempX;
+				ObsArray[ObsArraycnt - 1][1] = tempY;
+                                ObsArray[ObsArraycnt - 1][2] = 2;
+                                creatobs(tempX, tempY, ObsArray[ObsArraycnt - 1][2]);
+				//---	
+				Coordinatecmd.x = tempX;	
+				Coordinatecmd.y = tempY;	
+				Coordinatecmd.state = 0;
+				Coordinatecmd.cnt = 0;
+				//-------------------------------insert blue color flag
+				Coordinatecmd.color = 2;
+				//-------------------------------insert blue color flag
+				Obs_Topic.publish(Coordinatecmd);	
+				//---			
+				break;
+
+			//---------------------------------------------------------------add red obstacle
+			case 82:	//r, increasing red obstacle
+				ObsArraycnt = ObsArraycnt + 1;
+				ObsArray[ObsArraycnt - 1] = [];
+				ObsArray[ObsArraycnt - 1][0] = tempX;
+				ObsArray[ObsArraycnt - 1][1] = tempY;
+				ObsArray[ObsArraycnt - 1][2] = 5;
+                                creatobs(tempX, tempY, ObsArray[ObsArraycnt - 1][2]);
+				//---	
+				Coordinatecmd.x = tempX;	
+				Coordinatecmd.y = tempY;	
+				Coordinatecmd.state = 0;
+				Coordinatecmd.cnt = 0;
+				//-------------------------------insert red color flag
+				Coordinatecmd.color = 5;
+				//-------------------------------insert red color flag
+				Obs_Topic.publish(Coordinatecmd);	
+				//---			
+				break;
+			//---------------------------------------------------------------
+			case 68:	//d, 刪除路徑點
+				for(i = 0; i < PathPointcnt; i++)
+				{
+					if(((Math.abs(tempX - PathPoint[i][0])) <= 2) && ((Math.abs(tempY - PathPoint[i][1])) <= 2))
+					{
+						if(i != PathPointcnt - 1)
+						{
+							for(j = i + 1; j < PathPointcnt; j++)
+							{
+								PathPoint[j - 1] = PathPoint[j];
+							}
+							var tmp = PathPoint.pop();
+						}
+						else
+						{
+							var tmp = PathPoint.pop();
+						}
+						PathPointcnt = PathPointcnt - 1;
+						tmpPathPointcnt = i;
+						drawField();
+						//---	
+						Coordinatecmd.x = tempX;	
+						Coordinatecmd.y = tempY;	
+						Coordinatecmd.state = 1;
+						Coordinatecmd.cnt = Number(tmpPathPointcnt);;
+						Point_Topic.publish(Coordinatecmd);	
+						//---
+						break;
+					}
+				}
+				break;
+			case 73:	//i, 移動路徑點
+				for(i = 0; i < PathPointcnt; i++)
+				{
+					if(((Math.abs(tempX - PathPoint[i][0])) <= 2) && ((Math.abs(tempY - PathPoint[i][1])) <= 2))
+					{
+						findpoint = true;
+						tmpPathPointcnt = i;
+						PathPoint[tmpPathPointcnt][0] = tempX;
+						PathPoint[tmpPathPointcnt][1] = tempY;
+						drawField();
+						//---	
+						Coordinatecmd.x = tempX;	
+						Coordinatecmd.y = tempY;	
+						Coordinatecmd.state = 2;
+						Coordinatecmd.cnt = Number(tmpPathPointcnt);;
+						Point_Topic.publish(Coordinatecmd);	
+						//---
+						break;
+					}
+					else
+					{
+						findpoint = false;
+					}
+				}
+				break;			
+			case 75:	//k, 刪除障礙物
+				for(i = 0; i < ObsArraycnt; i++)
+				{
+					if(((Math.abs(tempX - ObsArray[i][0])) <= 15) && ((Math.abs(tempY - ObsArray[i][1])) <= 5))
+					{
+						if(i != ObsArraycnt - 1)
+						{
+							for(j = i + 1; j < ObsArraycnt; j++)
+							{
+								ObsArray[j - 1] = ObsArray[j];
+							}
+							var tmp = ObsArray.pop();
+						}
+						else
+						{
+							var tmp = ObsArray.pop();
+						}
+						ObsArraycnt = ObsArraycnt - 1;
+						tmpObsArraycnt = i;
+						drawField();
+						//---	
+						Coordinatecmd.x = tempX;	
+						Coordinatecmd.y = tempY;	
+						Coordinatecmd.state = 1;
+						Coordinatecmd.cnt = Number(tmpObsArraycnt);
+						Obs_Topic.publish(Coordinatecmd);	
+						//---	
+						break;
+					}
+				}
+				break;
+			case 77:	//m, 移動障礙物
+				for(i = 0; i < ObsArraycnt; i++)
+				{
+					if(((Math.abs(tempX - ObsArray[i][0])) <= 15) && ((Math.abs(tempY - ObsArray[i][1])) <= 5))
+					{
+						findobs = true;
+						tmpObsArraycnt = i;
+						//console.log('findobs, tmpObsArraycnt:',tmpObsArraycnt);
+						ObsArray[tmpObsArraycnt][0] = tempX;
+						ObsArray[tmpObsArraycnt][1] = tempY;
+						drawField();
+						//---	
+						Coordinatecmd.x = tempX;	
+						Coordinatecmd.y = tempY;	
+						Coordinatecmd.state = 2;
+						Coordinatecmd.cnt = Number(tmpObsArraycnt);
+						Obs_Topic.publish(Coordinatecmd);	
+						//---	
+						break;
+					}
+					else
+					{
+						findobs = false;
+					}
+				}
+				break;	
+		}
+	}
+};
+function getKeyboard(e){		
+	switch(event.which || event.keyCode){
+		case 65:	//a, 增加路徑點
+			keycode = 65;
+			break;
+		case 66:	//b, 增加藍色障礙物
+			keycode = 66;
+			break;
+		case 68:	//d, 刪除路徑點
+			keycode = 68;
+			break;
+		case 73:	//i, 移動路徑點
+			keycode = 73;
+			break;
+		case 75:	//k, 刪除障礙物
+			keycode = 75;
+			break;
+		case 77:	//m, 移動障礙物
+			keycode = 77;
+			break;
+		//-----------------------------------------------add red obs
+		case 82:	//r, add red obstacle
+			keycode = 82;
+			break;
+
+		//-----------------------------------------------add red obs	
+	}
+};
+function KeyboardUp(e){
+	keycode = 0;
+};
+function SaveObstacle(){
+	var SaveObstacle_Topic = new ROSLIB.Topic({
+			ros : ros,
+			name :'/web/saveobstacle',
+			messageType : 'std_msgs/Bool'
+	});
+	var Savecmd = new ROSLIB.Message({
+		data : true
+	});
+	SaveObstacle_Topic.publish(Savecmd);
+}
+function SaveParticle(){
+	var SaveParticle_Topic = new ROSLIB.Topic({
+			ros : ros,
+			name :'/web/saveparticle',
+			messageType : 'std_msgs/Bool'
+	});
+	var Savecmd = new ROSLIB.Message({
+		data : true
+	});
+	SaveParticle_Topic.publish(Savecmd);
+}
+function SaveParameter(){
+	SaveParametercmd.particle_candidat_num = Number(document.getElementById("particle_candidate_num").value);
+	SaveParametercmd.particle_PSO_num = Number(document.getElementById("pso_num").value);
+	SaveParametercmd.head_vertical_value = Number(document.getElementById("head_vertical_value").value);
+	SaveParametercmd.robot_lens_height = Number(document.getElementById("robot_height").value);
+	SaveParametercmd.image_top_length = Number(document.getElementById("image_top_length").value);
+	SaveParametercmd.image_center_length = Number(document.getElementById("image_center_length").value);
+	SaveParametercmd.image_bottom_length = Number(document.getElementById("image_bottom_length").value);
+	SaveParametercmd.image_center_width = Number(document.getElementById("image_center_width").value);
+	SaveParametercmd.camera_synthesis_left = Number(document.getElementById("camera_synthesis_left").value);
+	SaveParametercmd.camera_synthesis_right = Number(document.getElementById("camera_synthesis_right").value);
+	SaveParametercmd.robot_step_b = Number(document.getElementById("robot_step_b").value);
+	SaveParametercmd.robot_step_m = Number(document.getElementById("robot_step_m").value);
+	SaveParametercmd.robot_step_s = Number(document.getElementById("robot_step_s").value);
+	SaveParametercmd.particle_candidat_step_b = Number(document.getElementById("particle_candidat_step_b").value);
+	SaveParametercmd.particle_candidat_step_m = Number(document.getElementById("particle_candidat_step_m").value);
+	SaveParametercmd.particle_candidat_step_s = Number(document.getElementById("particle_candidat_step_s").value);
+	SaveParametercmd.robot_rotation_left_b = Number(document.getElementById("robot_rotation_left_b").value);
+	SaveParametercmd.robot_rotation_left_m = Number(document.getElementById("robot_rotation_left_m").value);
+	SaveParametercmd.robot_rotation_left_s = Number(document.getElementById("robot_rotation_left_s").value);
+	SaveParametercmd.robot_rotation_right_b = Number(document.getElementById("robot_rotation_right_b").value);
+	SaveParametercmd.robot_rotation_right_m = Number(document.getElementById("robot_rotation_right_m").value);
+	SaveParametercmd.robot_rotation_right_s = Number(document.getElementById("robot_rotation_right_s").value);
+	SaveParametercmd.particle_rotation_left_b = Number(document.getElementById("particle_rotation_left_b").value);
+	SaveParametercmd.particle_rotation_left_m = Number(document.getElementById("particle_rotation_left_m").value);
+	SaveParametercmd.particle_rotation_left_s = Number(document.getElementById("particle_rotation_left_s").value);
+	SaveParametercmd.particle_rotation_right_b = Number(document.getElementById("particle_rotation_right_b").value);
+	SaveParametercmd.particle_rotation_right_m = Number(document.getElementById("particle_rotation_right_m").value);
+	SaveParametercmd.particle_rotation_right_s = Number(document.getElementById("particle_rotation_right_s").value);
+	SaveParametercmd.obs_size = Number(document.getElementById("obs_size").value);
+	SaveParametercmd.robot_walk_delay_b = Number(document.getElementById("robot_walk_delay_b").value);
+	SaveParametercmd.robot_walk_delay_m = Number(document.getElementById("robot_walk_delay_m").value);
+	SaveParametercmd.robot_walk_delay_s =Number( document.getElementById("robot_walk_delay_s").value);
+	SaveParametercmd.robot_head_delay = Number(document.getElementById("robot_head_delay").value);
+	SaveParametercmd.robot_rotation_delay = Number(document.getElementById("robot_rotation_delay").value);
+	SaveParametercmd.particle_random_angle = Number(document.getElementById("particle_random_angle").value);
+	SaveParametercmd.particle_random_step = Number(document.getElementById("particle_random_step").value);
+	SaveParametercmd.particle_top_candidat_num = Number(document.getElementById("particle_top_candidat_num").value);
+	SaveParametercmd.particle_danger_dis = Number(document.getElementById("particle_danger_dis").value);
+	SaveParametercmd.particle_route_dis = Number(document.getElementById("particle_route_dis").value);
+	SaveParametercmd.rotate_time_two = Number(document.getElementById("rotate_time_two").value);
+	SaveParametercmd.rotate_time_three = Number(document.getElementById("rotate_time_three").value);
+	SaveParameter_Topic.publish(SaveParametercmd);
+	console.log('save parameter!!!');
+
+}
+function LoadObstacle()
+{
+            var LoadObstacleClient = new ROSLIB.Service({
+                ros : ros,
+                name : '/web/LoadObstacle',
+                serviceType : 'strategy/LoadData'
+            });
+            var obs_request = new ROSLIB.ServiceRequest({
+                load : true
+            });
+            LoadObstacleClient.callService(obs_request , function(obs_data){
+                ObsArraycnt = obs_data.cnt;
+                for(i = 0; i < ObsArraycnt; i++)
+                {
+                ObsArray[i] = [];
+                ObsArray[i][0] = obs_data.x[i];
+                ObsArray[i][1] = 350-obs_data.y[i];
+                ObsArray[i][2] = obs_data.color[i];
+                }
+		drawField();
+            });
+
+}
+function LoadParticle()
+{
+            var LoadPathPointClient = new ROSLIB.Service({
+                ros : ros,
+                name : '/web/LoadPathPoint',
+                serviceType : 'strategy/LoadData'
+            });
+            var path_request = new ROSLIB.ServiceRequest({
+                load : true
+            });
+            LoadPathPointClient.callService(path_request , function(path_data){
+                PathPointcnt = path_data.cnt;
+                for(i = 0; i < PathPointcnt; i++)
+                {
+                PathPoint[i] = [];
+                PathPoint[i][0] = path_data.x[i];
+                PathPoint[i][1] = 350-path_data.y[i];
+		PathPoint.sort(sortNumber);
+                }
+                drawField();
+            });
+
+}
+function Astar()
+{
+            var Astar_Topic = new ROSLIB.Topic({
+			ros : ros,
+			name :'/web/doastar',
+			messageType : 'std_msgs/Bool'
+	});
+	var Astarcmd = new ROSLIB.Message({
+		data : true
+	});
+	Astar_Topic.publish(Astarcmd);
+}
+function LoadParameter()
+{
+            var LoadParameterClient = new ROSLIB.Service({
+                ros : ros,
+                name : '/web/LoadParameter',
+                serviceType : 'strategy/LoadParameter'
+            });
+            var parameter_request = new ROSLIB.ServiceRequest({
+                load : true
+            });
+            LoadParameterClient.callService(parameter_request , function(parameter_data){
+		document.getElementById("particle_candidate_num").value = parameter_data.particle_candidat_num;
+		document.getElementById("pso_num").value = parameter_data.particle_PSO_num;
+		document.getElementById("head_vertical_value").value = parameter_data.head_vertical_value;
+		document.getElementById("robot_height").value = parameter_data.robot_lens_height;
+		document.getElementById("image_top_length").value = parameter_data.image_top_length;
+		document.getElementById("image_center_length").value = parameter_data.image_center_length;
+		document.getElementById("image_bottom_length").value = parameter_data.image_bottom_length;
+		document.getElementById("image_center_width").value = parameter_data.image_center_width;
+		document.getElementById("camera_synthesis_left").value = parameter_data.camera_synthesis_left;
+		document.getElementById("camera_synthesis_right").value = parameter_data.camera_synthesis_right;
+		document.getElementById("robot_step_b").value = parameter_data.robot_step_b;
+		document.getElementById("robot_step_m").value = parameter_data.robot_step_m;
+		document.getElementById("robot_step_s").value = parameter_data.robot_step_s;
+		document.getElementById("particle_candidat_step_b").value = parameter_data.particle_candidat_step_b;
+		document.getElementById("particle_candidat_step_m").value = parameter_data.particle_candidat_step_m;
+		document.getElementById("particle_candidat_step_s").value = parameter_data.particle_candidat_step_s;
+		document.getElementById("robot_rotation_left_b").value = parameter_data.robot_rotation_left_b;
+		document.getElementById("robot_rotation_left_m").value = parameter_data.robot_rotation_left_m;
+		document.getElementById("robot_rotation_left_s").value = parameter_data.robot_rotation_left_s;
+		document.getElementById("robot_rotation_right_b").value = parameter_data.robot_rotation_right_b;
+		document.getElementById("robot_rotation_right_m").value = parameter_data.robot_rotation_right_m;
+		document.getElementById("robot_rotation_right_s").value = parameter_data.robot_rotation_right_s;
+		document.getElementById("particle_rotation_left_b").value = parameter_data.particle_rotation_left_b;
+		document.getElementById("particle_rotation_left_m").value = parameter_data.particle_rotation_left_m;
+		document.getElementById("particle_rotation_left_s").value = parameter_data.particle_rotation_left_s;
+		document.getElementById("particle_rotation_right_b").value = parameter_data.particle_rotation_right_b;
+		document.getElementById("particle_rotation_right_m").value = parameter_data.particle_rotation_right_m;
+		document.getElementById("particle_rotation_right_s").value = parameter_data.particle_rotation_right_s;
+		document.getElementById("obs_size").value = parameter_data.obs_size;
+		document.getElementById("robot_walk_delay_b").value = parameter_data.robot_walk_delay_b;
+		document.getElementById("robot_walk_delay_m").value = parameter_data.robot_walk_delay_m;
+		document.getElementById("robot_walk_delay_s").value = parameter_data.robot_walk_delay_s;
+		document.getElementById("robot_head_delay").value = parameter_data.robot_head_delay;
+		document.getElementById("robot_rotation_delay").value = parameter_data.robot_rotation_delay;
+		document.getElementById("particle_random_angle").value = parameter_data.particle_random_angle;
+		document.getElementById("particle_random_step").value = parameter_data.particle_random_step;
+		document.getElementById("particle_top_candidat_num").value = parameter_data.particle_top_candidat_num;
+		document.getElementById("particle_danger_dis").value = parameter_data.particle_danger_dis;
+		document.getElementById("particle_route_dis").value = parameter_data.particle_route_dis;
+		document.getElementById("rotate_time_two").value = parameter_data.rotate_time_two;
+		document.getElementById("rotate_time_three").value = parameter_data.rotate_time_three;
+
+		document.getElementById("save").style.display = "inline";
+                
+            });
+
+}
+function changeparameter(name,value){
+        tmpvalue = value;
+        switch(name)
+	{
+        case "particle_candidate_num":
+                console.log('particle_candidate_num');
+		document.getElementById("particle_candidate_num").value = tmpvalue;
+	break;
+        case "pso_num":
+                console.log('pso_num');
+		document.getElementById("pso_num").value = tmpvalue;
+		console.log(document.getElementById("pso_num").value);
+	break;
+	case "head_vertical_value":
+                console.log('head_vertical_value');
+		document.getElementById("head_vertical_value").value = tmpvalue;
+	break;
+	case "robot_height":
+                console.log('robot_height');
+		document.getElementById("robot_height").value = tmpvalue;
+	break;
+	case "image_top_length":
+                console.log('image_top_length');
+		document.getElementById("image_top_length").value = tmpvalue;
+	break;
+	case "image_center_length":
+                console.log('image_center_length');
+		document.getElementById("image_center_length").value = tmpvalue;
+	break;
+	case "image_bottom_length":
+                console.log('image_bottom_length');
+		document.getElementById("image_bottom_length").value = tmpvalue;
+	break;
+	case "image_center_width":
+                console.log('image_center_width');
+		document.getElementById("image_center_width").value = tmpvalue;
+	break;
+	case "camera_synthesis_left":
+                console.log('camera_synthesis_left');
+		document.getElementById("camera_synthesis_left").value = tmpvalue;
+	break;
+	case "camera_synthesis_right":
+                console.log('camera_synthesis_right');
+		document.getElementById("camera_synthesis_right").value = tmpvalue;
+	break;
+	case "robot_step_b":
+                console.log('robot_step_b');
+		document.getElementById("robot_step_b").value = tmpvalue;
+	break;
+	case "robot_step_m":
+                console.log('robot_step_m');
+		document.getElementById("robot_step_m").value = tmpvalue;
+	break;
+	case "robot_step_s":
+                console.log('robot_step_s');
+		document.getElementById("robot_step_s").value = tmpvalue;
+	break;
+        case "particle_candidat_step_b":
+                console.log('particle_candidat_step_b');
+		document.getElementById("particle_candidat_step_b").value = tmpvalue;
+	break;
+	case "particle_candidat_step_m":
+                console.log('particle_candidat_step_m');
+		document.getElementById("particle_candidat_step_m").value = tmpvalue;
+	break;
+	case "particle_candidat_step_s":
+                console.log('particle_candidat_step_s');
+		document.getElementById("particle_candidat_step_s").value = tmpvalue;
+	break;
+	case "robot_rotation_left_b":
+                console.log('robot_rotation_left_b');
+		document.getElementById("robot_rotation_left_b").value = tmpvalue;
+	break;
+	case "robot_rotation_left_m":
+                console.log('robot_rotation_left_m');
+		document.getElementById("robot_rotation_left_m").value = tmpvalue;
+	break;
+	case "robot_rotation_left_s":
+                console.log('robot_rotation_left_s');
+		document.getElementById("robot_rotation_left_s").value = tmpvalue;
+	break;
+	case "robot_rotation_right_b":
+                console.log('robot_rotation_right_b');
+		document.getElementById("robot_rotation_right_b").value = tmpvalue;
+	break;
+	case "robot_rotation_right_m":
+                console.log('robot_rotation_right_m');
+		document.getElementById("robot_rotation_right_m").value = tmpvalue;
+	break;
+	case "robot_rotation_right_s":
+                console.log('robot_rotation_right_s');
+		document.getElementById("robot_rotation_right_s").value = tmpvalue;
+	break;
+	case "particle_rotation_left_b":
+                console.log('particle_rotation_left_b');
+		document.getElementById("particle_rotation_left_b").value = tmpvalue;
+	break;
+	case "particle_rotation_left_m":
+                console.log('particle_rotation_left_m');
+		document.getElementById("particle_rotation_left_m").value = tmpvalue;
+	break;
+        case "particle_rotation_left_s":
+                console.log('particle_rotation_left_s');
+		document.getElementById("particle_rotation_left_s").value = tmpvalue;
+	break;
+	case "particle_rotation_right_b":
+                console.log('particle_rotation_right_b');
+		document.getElementById("particle_rotation_right_b").value = tmpvalue;
+	break;
+	case "particle_rotation_right_m":
+                console.log('particle_rotation_right_m');
+		document.getElementById("particle_rotation_right_m").value = tmpvalue;
+	break;
+	case "particle_rotation_right_s":
+                console.log('particle_rotation_right_s');
+		document.getElementById("particle_rotation_right_s").value = tmpvalue;
+	break;
+	case "obs_size":
+                console.log('obs_size');
+		document.getElementById("obs_size").value = tmpvalue;
+	break;
+	case "robot_walk_delay_b":
+                console.log('robot_walk_delay_b');
+		document.getElementById("robot_walk_delay_b").value = tmpvalue;
+	break;
+	case "robot_walk_delay_m":
+                console.log('robot_walk_delay_m');
+		document.getElementById("robot_walk_delay_m").value = tmpvalue;
+	break;
+	case "robot_walk_delay_s":
+                console.log('robot_walk_delay_s');
+		document.getElementById("robot_walk_delay_s").value = tmpvalue;
+	break;
+	case "robot_head_delay":
+                console.log('robot_head_delay');
+		document.getElementById("robot_head_delay").value = tmpvalue;
+	break;
+	case "robot_rotation_delay":
+                console.log('robot_rotation_delay');
+		document.getElementById("robot_rotation_delay").value = tmpvalue;
+	break;
+	case "particle_random_angle":
+                console.log('particle_random_angle');
+		document.getElementById("particle_random_angle").value = tmpvalue;
+	break;
+	case "particle_random_step":
+                console.log('particle_random_step');
+		document.getElementById("particle_random_step").value = tmpvalue;
+	break;
+        case "particle_top_candidat_num":
+                console.log('particle_top_candidat_num');
+		document.getElementById("particle_top_candidat_num").value = tmpvalue;
+	break;
+	case "particle_danger_dis":
+                console.log('particle_danger_dis');
+		document.getElementById("particle_danger_dis").value = tmpvalue;
+	break;
+	case "particle_route_dis":
+                console.log('particle_route_dis');
+		document.getElementById("particle_route_dis").value = tmpvalue;
+	break;
+	case "rotate_time_two":
+                console.log('rotate_time_two');
+		document.getElementById("rotate_time_two").value = tmpvalue;
+	break;
+	case "rotate_time_three":
+                console.log('rotate_time_three');
+		document.getElementById("rotate_time_three").value = tmpvalue;
+	break;
+	}
+}
+
+//-->
+</script>
+<p id="connected" style="color:#00D600; display:none">Connected</p>
+<div align="center">
+    	<canvas id="obsCanvas" width="600" height="400"></canvas>
+	<table>
+	    	<tr>
+		<td>
+		    <input type="button" class="Button" id="BSaveParticle" value="Save Particle" onClick="SaveParticle()"></input>
+		</td>
+		<td>
+		    <input type="button" class="Button" id="BLoadParticle" value="Load Particle" onClick="LoadParticle()"></input>
+		</td>
+		<td>
+			<input type="button" class="Button" id="Astar" value="Astar" onClick="Astar()"></input>
+		</td>
+	    </tr>
+	    <tr>
+		<td>
+		    <input type="button" class="Button" id="BSaveObstacle" value="Save Obstacle" onClick="SaveObstacle()"></input>
+		</td>
+		<td>
+		    <input type="button" class="Button" id="BLoadObstacle" value="Load Obstacle" onClick="LoadObstacle()"></input>
+		</td>
+	    </tr>
+	</table>
+</div>
+<div align="center">
+	<section style="float: left;">
+                <form   id="form1">
+		<table>
+			<tr>
+				<td>粒子數量</td>
+                                <td><input type="test" name="particle_candidate_num" id="particle_candidate_num" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>PSO疊代次數</td>
+                                <td><input type="test" name="pso_num" id="pso_num" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>頭部垂直刻度</td>
+                                <td><input type="test" name="head_vertical_value" id="head_vertical_value" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人高度</td>
+				<td><input type="test" name="robot_height" id="robot_height" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>畫面高度最高距離</td>
+				<td><input type="test" name="image_top_length" id="image_top_length" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>畫面高度中點距離</td>
+				<td><input type="test" name="image_center_length" id="image_center_length" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>畫面高度最低距離</td>
+				<td><input type="test" name="image_bottom_length" id="image_bottom_length" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>畫面寬度中點距離</td>
+				<td><input type="test" name="image_center_width" id="image_center_width" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>組合左視覺角度</td>
+				<td><input type="test" name="camera_synthesis_left" id="camera_synthesis_left" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>組合右視覺角度</td>
+				<td><input type="test" name="camera_synthesis_right" id="camera_synthesis_right" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人大直走距離</td>
+				<td><input type="test" name="robot_step_b" id="robot_step_b" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人中直走距離</td>
+				<td><input type="test" name="robot_step_m" id="robot_step_m" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人小直走距離</td>
+				<td><input type="test" name="robot_step_s" id="robot_step_s" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子大直走距離</td>
+				<td><input type="test" name="particle_candidat_step_b" id="particle_candidat_step_b" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子中直走距離</td>
+				<td><input type="test" name="particle_candidat_step_m" id="particle_candidat_step_m" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子小直走距離</td>
+				<td><input type="test" name="particle_candidat_step_s" id="particle_candidat_step_s" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+		</table>
+		</form>
+	</section>
+	<section style="float: left;">
+		<form>
+		<table>
+			<tr>
+				<td>機器人大左轉</td>
+				<td><input type="test" name="robot_rotation_left_b" id="robot_rotation_left_b" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人中左轉</td>
+				<td><input type="test" name="robot_rotation_left_m" id="robot_rotation_left_m" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人小左轉</td>
+				<td><input type="test" name="robot_rotation_left_s" id="robot_rotation_left_s" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人大右轉</td>
+				<td><input type="test" name="robot_rotation_right_b" id="robot_rotation_right_b" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人中右轉</td>
+				<td><input type="test" name="robot_rotation_right_m" id="robot_rotation_right_m" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>機器人小右轉</td>
+				<td><input type="test" name="robot_rotation_right_s" id="robot_rotation_right_s" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子大左轉</td>
+				<td><input type="test" name="particle_rotation_left_b" id="particle_rotation_left_b" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子中左轉</td>
+				<td><input type="test" name="particle_rotation_left_m" id="particle_rotation_left_m" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子小左轉</td>
+				<td><input type="test" name="particle_rotation_left_s" id="particle_rotation_left_s" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子大右轉</td>
+				<td><input type="test" name="particle_rotation_right_b" id="particle_rotation_right_b" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子中右轉</td>
+				<td><input type="test" name="particle_rotation_right_m" id="particle_rotation_right_m" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子小右轉</td>
+				<td><input type="test" name="particle_rotation_right_s" id="particle_rotation_right_s" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>障礙物大小</td>
+				<td><input type="test" name="obs_size" id="obs_size" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>大步延遲時間</td>
+				<td><input type="test" name="robot_walk_delay_b" id="robot_walk_delay_b" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>中步延遲時間</td>
+				<td><input type="test" name="robot_walk_delay_m" id="robot_walk_delay_m" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>小步延遲時間</td>
+				<td><input type="test" name="robot_walk_delay_s" id="robot_walk_delay_s" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>	
+		</table>
+		</form>
+	</section>
+	<section style="float: left;">
+		<form>
+		<table>
+			<tr>
+				<td>頭部旋轉延遲</td>
+				<td><input type="test" name="robot_head_delay" id="robot_head_delay" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>旋轉延遲</td>
+				<td><input type="test" name="robot_rotation_delay" id="robot_rotation_delay" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子隨機角度</td>
+				<td><input type="test" name="particle_random_angle" id="particle_random_angle" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>粒子隨機步數</td>
+				<td><input type="test" name="particle_random_step" id="particle_random_step" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>挑選幾個最佳粒子點</td>
+				<td><input type="test" name="particle_top_candidat_num" id="particle_top_candidat_num" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>危險距離</td>
+				<td><input type="test" name="particle_danger_dis" id="particle_danger_dis" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>路徑點距離</td>
+				<td><input type="test" name="particle_route_dis" id="particle_route_dis" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>小於幾度轉一次</td>
+				<td><input type="test" name="rotate_time_two" id="rotate_time_two" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<tr>
+				<td>大於幾度轉二次</td>
+				<td><input type="test" name="rotate_time_three" id="rotate_time_three" value="0" onchange="changeparameter(this.name,this.value)"></td>
+			</tr>
+			<td><button type="button" style="width: 121px;height: 40px" onclick="LoadParameter()">Load</button></td>
+	    		<td><button type="button" style="width: 80px;height: 40px; display : none" id="save" onclick="SaveParameter()">Save</button></td>
+		</table>
+		</form>
+	</section>
+</div>
+</body>
+</html>
